@@ -107,7 +107,7 @@ today = datetime.date.today()
 if is_last_day_of_month(today):
     
 # Load the Excel file containing email addresses
-addresses_df = pd.read_excel(r'C:/Users/utilisateur/Desktop/addresses.xlsx')
+addresses_df = pd.read_excel(r'/home/runner/work/momentum_model/momentum_model/addresses.xlsx')
 
 # Extract the email addresses from the DataFrame
 email_addresses = addresses_df['Emails'].tolist()
