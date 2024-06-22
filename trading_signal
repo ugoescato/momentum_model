@@ -1,0 +1,154 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
+import yfinance as yf
+import pandas as pd
+from datetime import datetime
+import win32com.client as win32
+import os
+
+
+# In[2]:
+
+
+SPY = yf.download("SPY")
+QQQ = yf.download("QQQ")
+XLE = yf.download("XLE")
+GLD = yf.download("GLD")
+FEZ = yf.download("^STOXX")
+
+
+# In[3]:
+
+
+#monthly_returns_SPY = SPY['Adj Close'].resample('M').ffill().pct_change()
+monthly_returns_QQQ = QQQ['Adj Close'].resample('M').ffill().pct_change()
+monthly_returns_XLE = XLE['Adj Close'].resample('M').ffill().pct_change()
+monthly_returns_GLD = GLD['Adj Close'].resample('M').ffill().pct_change()
+monthly_returns_FEZ = FEZ['Adj Close'].resample('M').ffill().pct_change()
+
+
+# In[4]:
+
+
+current_date = datetime.now()
+
+
+# In[5]:
+
+
+# if current_date.month == current_date.month:
+#     last_three_months_returns_SPY = monthly_returns_SPY.tail(4).iloc[:-1]
+#     last_three_months_returns_QQQ = monthly_returns_QQQ.tail(4).iloc[:-1]
+#     last_three_months_returns_XLE = monthly_returns_XLE.tail(4).iloc[:-1]
+#     last_three_months_returns_GLD = monthly_returns_GLD.tail(4).iloc[:-1]
+#     last_three_months_returns_FEZ = monthly_returns_FEZ.tail(4).iloc[:-1]
+# else:
+#last_three_months_returns_SPY = monthly_returns_SPY.tail(3)
+last_three_months_returns_QQQ = monthly_returns_QQQ.tail(3)
+last_three_months_returns_XLE = monthly_returns_XLE.tail(3)
+last_three_months_returns_GLD = monthly_returns_GLD.tail(3)
+last_three_months_returns_FEZ = monthly_returns_FEZ.tail(3)
+
+
+# In[6]:
+
+
+#cumulative_return_last_three_months_SPY = (1 + last_three_months_returns_SPY).prod() - 1
+cumulative_return_last_three_months_QQQ = (1 + last_three_months_returns_QQQ).prod() - 1
+cumulative_return_last_three_months_XLE = (1 + last_three_months_returns_XLE).prod() - 1
+cumulative_return_last_three_months_GLD = (1 + last_three_months_returns_GLD).prod() - 1
+cumulative_return_last_three_months_FEZ = (1 + last_three_months_returns_FEZ).prod() - 1
+
+
+# In[7]:
+
+
+assets_cumulative_returns = [
+    ("QQQ", cumulative_return_last_three_months_QQQ),
+    ("XLE", cumulative_return_last_three_months_XLE),
+    ("GLD", cumulative_return_last_three_months_GLD),
+    ("FEZ", cumulative_return_last_three_months_FEZ)
+]
+
+highest_return_asset_last_three_months = max(assets_cumulative_returns, key=lambda x: x[1])
+highest_return_name, highest_return_value = highest_return_asset_last_three_months
+print("The asset with the highest cumulative return over the past 3 months is:", highest_return_name)
+print("With the following cumulative return:", highest_return_value)
+
+
+# In[13]:
+
+
+# Define a dictionary to map highest_return_name to ISIN
+isin_mapping = {
+    "SPY": "(ISIN: IE00B5BMR087)",
+    "QQQ": "(ISIN: LU1829221024 / IE0032077012)",
+    "XLE": "(ISIN: IE00BWBXM492)",
+    "GLD": "(ISIN: FR0013416716)",
+    "FEZ": "(ISIN: LU0908500753)"
+}
+
+# Get the ISIN based on highest_return_name
+ISIN = isin_mapping.get(highest_return_name, "Unknown")
+
+
+# In[14]:
+
+def is_last_day_of_month(date):
+    next_day = date + datetime.timedelta(days=1)
+    return next_day.day == 1
+
+today = datetime.date.today()
+
+if is_last_day_of_month(today):
+    
+# Load the Excel file containing email addresses
+addresses_df = pd.read_excel('addresses.xlsx')
+
+# Extract the email addresses from the DataFrame
+email_addresses = addresses_df['Emails'].tolist()
+
+# Create Outlook application object
+outlook = win32.Dispatch('outlook.application')
+
+# Loop through each email address
+for email_address in email_addresses:
+    # Create a new email
+    mail = outlook.CreateItem(0)
+    mail.To = email_address
+    mail.Subject = 'Next Month Investment - Investissement du Mois Prochain'
+    mail.Body = f"""***Version française plus bas***
+    
+Dear Investors,
+
+For the coming month, I suggest you to invest in {highest_return_name} {ISIN}.
+
+Best regards,
+Ugo Escato
+
+***French version***
+
+Chers Investisseurs,
+
+Pour le mois qui arrive, je vous conseille d'investir sur {highest_return_name} {ISIN}.
+
+Bien cordialement,
+Ugo Escato
+"""
+
+    # Attach plot image to the email
+    # attachment = os.path.abspath("plot.png")
+    # mail.Attachments.Add(attachment)
+
+    # Send email
+    mail.Send()
+print("Running the script as it's the last day of the month.")
+
+else:
+    print("Not the last day of the month.")
+
+# In[ ]:
