@@ -107,7 +107,7 @@ today = datetime.date.today()
 if is_last_day_of_month(today):
     
 # Load the Excel file containing email addresses
-addresses_df = pd.read_excel(r'addresses.xlsx')
+addresses_df = pd.read_excel('addresses.xlsx')
 
 # Extract the email addresses from the DataFrame
 email_addresses = addresses_df['Emails'].tolist()
