@@ -19,4 +19,4 @@ jobs:
 
       - name: Run Python script
         run: |
-          python "Momentum Model - Trading signal.py"
+          python "trading_signal.py"
