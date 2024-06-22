@@ -98,7 +98,14 @@ ISIN = isin_mapping.get(highest_return_name, "Unknown")
 
 # In[14]:
 
+def is_last_day_of_month(date):
+    next_day = date + datetime.timedelta(days=1)
+    return next_day.day == 1
 
+today = datetime.date.today()
+
+if is_last_day_of_month(today):
+    
 # Load the Excel file containing email addresses
 addresses_df = pd.read_excel(r'C:/Users/utilisateur/Desktop/addresses.xlsx')
 
@@ -139,7 +146,10 @@ Ugo Escato
 
     # Send email
     mail.Send()
+print("Running the script as it's the last day of the month.")
 
+else:
+    print("Not the last day of the month.")
 
 # In[ ]:
 
