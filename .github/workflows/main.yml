@@ -1,0 +1,22 @@
+name: Run Python script on the last day of each month
+
+on:
+  schedule:
+    - cron: '00 15 01-31 * *'  
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Run Python script
+        run: |
+          python "Momentum Model - Trading signal.py"
